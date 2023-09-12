@@ -2,9 +2,10 @@ import redis
 #from fastapi import FastAPI, BackgroundTasks
 from apscheduler.schedulers.background import BackgroundScheduler
 from datetime import datetime
-#import time 
+import time 
 import pymysql
 import json
+
 
 class User:
     def insert(self, vo):
@@ -31,31 +32,39 @@ def add_data_to_db():
         
         jsonobj = json.loads(json_str)
         obj = MyObject(jsonobj)
-        print(f"뽑아낸 감ㅄ은{obj}")
         user=User()
         user.insert(obj)
+        print(f"insert to db {obj.id}, {obj.name}")
+    else:
+        print("redis에 값이 없습니다.")
 
-scheduler = BackgroundScheduler()
-scheduler.add_job(add_data_to_db,'interval',seconds=2)
-scheduler.start()
+#scheduler = BackgroundScheduler()
+#scheduler.add_job(add_data_to_db,'interval',seconds=2)
+#scheduler.start()
 r=redis.Redis(host='localhost',port=6379,db=0)
 
 
-try:
+#try:
     # 스케줄러가 계속 실행되도록 유지
-    while True:
-        pass
-except (KeyboardInterrupt, SystemExit):
+#    while True:
+#        pass
+#except (KeyboardInterrupt, SystemExit):
     # Ctrl+C 또는 종료 시 스케줄러 정지
-    scheduler.shutdown()
+#    scheduler.shutdown()
 
 def test():
-    print("test")
-    scheduler = BackgroundScheduler()
-    scheduler.add_job(add_data_to_db,'interval',seconds=1)
-    scheduler.start()
+    try:
+        while True:
+            add_data_to_db()
+            time.sleep(2) 
+    except (KeyboardInterrupt, SystemExit):
+        print("종료합니다.ㅋㅋ")
+
+    #scheduler = BackgroundScheduler()
+    #scheduler.add_job(add_data_to_db,'interval',seconds=1)
+    #scheduler.start()
 
 
 
-#if __name__ == "__main__":
-    #test()
+if __name__ == "__main__":
+    test()
